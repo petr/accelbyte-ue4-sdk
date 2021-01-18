@@ -354,7 +354,7 @@ void Lobby::GetAllAsyncNotification()
 //-------------------------------------------------------------------------------------------------
 // Matchmaking
 //-------------------------------------------------------------------------------------------------
-FString Lobby::SendStartMatchmaking(FString GameMode, FString ServerName, FString ClientVersion, TArray<TPair<FString, float>> Latencies)
+FString Lobby::SendStartMatchmaking(FString GameMode, FString ServerName, FString ClientVersion, TArray<TPair<FString, float>> Latencies, TMap<FString, FString> PartyAttributes)
 {
 	Report report;
 	report.GetFunctionLog(FString(__FUNCTION__));
@@ -381,6 +381,30 @@ FString Lobby::SendStartMatchmaking(FString GameMode, FString ServerName, FStrin
 		}
 		ServerLatencies.Append(TEXT("}"));
 		Contents.Append(FString::Printf(TEXT("latencies: %s\n"), *ServerLatencies));
+	}
+
+	if (PartyAttributes.Num() > 0)
+	{
+		FString partyAttributeSerialized = "";
+		TArray<FString> keys;
+		PartyAttributes.GetKeys(keys);
+		for (int i = 0 ; i < keys.Num() ; i++)
+		{
+			FString key = keys[i];
+			FString value = PartyAttributes[keys[i]];
+			key.ReplaceCharWithEscapedChar();
+			value.ReplaceCharWithEscapedChar();
+			
+			//Convert to this format [ "key":"value" ]
+			partyAttributeSerialized.Append(FString::Printf(TEXT("\"%s\":\"%s\""), *key, *value));
+
+			//If there's more attribute, append a delimiter
+			if (i < keys.Num() - 1)
+			{
+				partyAttributeSerialized.Append(", ");
+			}
+		}
+		Contents.Append(FString::Printf(TEXT("partyAttributes: {%s}"), *partyAttributeSerialized));
 	}
 
 	return SendRawRequest(LobbyRequest::StartMatchmaking, Prefix::Matchmaking,

@@ -16,6 +16,7 @@
 #include "Modules/ModuleManager.h"
 #include "IWebSocket.h"
 #include "WebSocketsModule.h"
+#include "JsonUtilities.h"
 
 
 namespace AccelByte
@@ -127,7 +128,7 @@ namespace AccelByte
         {
             Report report;
             report.GetFunctionLog(FString(__FUNCTION__));
-			if (ServerType != EServerType::CLOUDSERVER)
+			if (ServerType == EServerType::LOCALSERVER)
 			{
 				OnError.ExecuteIfBound(409, TEXT("Server not registered as Cloud Server."));
 			}
@@ -252,7 +253,7 @@ namespace AccelByte
         {
             Report report;
             report.GetFunctionLog(FString(__FUNCTION__));
-			if (ServerType != EServerType::LOCALSERVER)
+			if (ServerType == EServerType::CLOUDSERVER)
 			{
 				OnError.ExecuteIfBound(409, TEXT("Server not registered as Local Server."));
 			}
@@ -443,6 +444,39 @@ namespace AccelByte
 			}
 		}
 
+		void RemoveMemberAttributeFromBackend(FJsonObject& jsonObject)
+		{
+			if (jsonObject.HasField("matching_allies"))
+			{
+				const TArray<TSharedPtr<FJsonValue>>* matching_allies;
+				if (jsonObject.TryGetArrayField("matching_allies", matching_allies))
+				{
+					for (int i = 0; i < matching_allies->Num(); i++)
+					{
+						const TArray<TSharedPtr<FJsonValue>>* matching_parties;
+						if ((*matching_allies)[i]->AsObject()->TryGetArrayField("matching_parties", matching_parties))
+						{
+							for (int j = 0; j < matching_parties->Num(); j++)
+							{
+								const TSharedPtr<FJsonObject>* matching_party;
+								if ((*matching_parties)[j]->TryGetObject(matching_party))
+								{
+									const TSharedPtr<FJsonObject>* partyAttribute;
+									if ((*matching_party)->TryGetObjectField("party_attributes", partyAttribute))
+									{
+										if ((*partyAttribute)->HasField("member_attributes"))
+										{
+											(*partyAttribute)->RemoveField("member_attributes");
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		ServerDSM::ServerDSM(const AccelByte::ServerCredentials& Credentials, const AccelByte::ServerSettings& Settings)
 		{
 			PROVIDER_TABLE.Add(EProvider::AGONES, "agones");
@@ -464,7 +498,19 @@ namespace AccelByte
 				{
 					if (Response->GetContentLength() > 0)
 					{
-						HandleHttpResultOk(Response, OnMatchRequest);
+						HandleHttpResultOk(Response, THandler<FJsonObject>::CreateLambda([OnSuccess = OnMatchRequest](const FJsonObject& jsonObject)
+						{
+							FJsonObject copyJsonObject = FJsonObject(jsonObject);
+							RemoveMemberAttributeFromBackend(copyJsonObject);
+							TSharedRef<FJsonObject> JsonObjectRef = MakeShared<FJsonObject>(copyJsonObject);
+							FAccelByteModelsMatchRequest MatchRequest;
+							bool bParseSuccess = FJsonObjectConverter::JsonObjectToUStruct<FAccelByteModelsMatchRequest>(JsonObjectRef, &MatchRequest, 0, 0);
+
+							if (bParseSuccess)
+							{
+								OnSuccess.ExecuteIfBound(MatchRequest);
+							}
+						}));
 					}
 
 					return;
@@ -553,16 +599,28 @@ namespace AccelByte
 							GameServer->ObjectMeta.Annotations.GetKeys(ListOfKey);
 							if (ListOfKey.Contains(AGONES_MATCH_DETAILS_ANNOTATION))
 							{
+								FAccelByteModelsMatchRequest MatchRequestDeserialized;
 								FString MatchDetails = GameServer->ObjectMeta.Annotations[AGONES_MATCH_DETAILS_ANNOTATION];
-								FAccelByteModelsMatchRequest StructResponse;
-								bool bParseSuccess = FJsonObjectConverter::JsonObjectStringToUStruct(MatchDetails, &StructResponse, 0, 0);
-								if (bParseSuccess)
+
+								TSharedPtr<FJsonObject> jsonObjectPtr = MakeShareable(new FJsonObject);
+								TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(MatchDetails);
+								bool bDeserializeSuccess = FJsonSerializer::Deserialize(Reader, jsonObjectPtr);
+								TSharedRef<FJsonObject> jsonObjectRef = jsonObjectPtr.ToSharedRef();
+								RemoveMemberAttributeFromBackend(jsonObjectRef.Get());
+
+								bool bParseSuccess = FJsonObjectConverter::JsonObjectToUStruct<FAccelByteModelsMatchRequest>(jsonObjectRef, &MatchRequestDeserialized, 0, 0);
+
+								if (bParseSuccess == false)
 								{
-									OnMatchRequest.ExecuteIfBound(StructResponse);
+									OnHeartBeatError.ExecuteIfBound(404, TEXT("Agones GetGameServer's match-details annotation is wrong."));
+								}
+								if (MatchRequestDeserialized.Session_id == "")
+								{
+									OnHeartBeatError.ExecuteIfBound(404, TEXT("Agones GetGameServer's match-details annotation is wrong."));
 								}
 								else
 								{
-									OnHeartBeatError.ExecuteIfBound(404, TEXT("Agones GetGameServer's match-details annotation is wrong."));
+									OnMatchRequest.ExecuteIfBound(MatchRequestDeserialized);
 								}
 							}
 							else
