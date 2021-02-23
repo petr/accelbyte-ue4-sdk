@@ -5,6 +5,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "AccelByteGeneralModels.h"
 #include "AccelByteUserModels.generated.h"
 
@@ -16,6 +17,8 @@ enum class EAccelBytePlatformType : uint8
 {
 	Steam,
 	PS4,
+	PS4CrossGen,
+	PS5,
 	Live,
 	Google,
 	Facebook,
@@ -249,7 +252,7 @@ struct ACCELBYTEUE4SDK_API FVerificationCodeRequest
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AccelByte | UserManagement | Models | SendVerificationCodeRequest")
 		FString LanguageTag;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AccelByte | UserManagement | Models | SendVerificationCodeRequest")
-		FString LoginID;
+		FString EmailAddress;
 };
 
 USTRUCT(BlueprintType)
@@ -399,4 +402,14 @@ struct ACCELBYTEUE4SDK_API FLinkPlatformAccountRequest
 		FString PlatformId;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AccelByte | UserManagement | Models | LinkPlatformAccountRequest")
 		FString PlatformUserId;
+};
+
+USTRUCT(BlueprintType)
+struct ACCELBYTEUE4SDK_API FUpdateEmailRequest
+{
+	GENERATED_BODY()
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AccelByte | UserManagement | Models | UpdateEmailRequest")
+		FString Code;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AccelByte | UserManagement | Models | UpdateEmailRequest")
+		FString EmailAddress;
 };

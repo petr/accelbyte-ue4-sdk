@@ -1,4 +1,4 @@
-// Copyright (c) 2018 - 2020 AccelByte Inc. All Rights Reserved.
+// Copyright (c) 2018 - 2021 AccelByte Inc. All Rights Reserved.
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
@@ -47,6 +47,8 @@ namespace GameServerApi
 	class ServerQosManager;
 	class ServerGameTelemetry;
 	class ServerAchievement;
+	class ServerMatchmaking;
+	class ServerLobby;
 }
 
 class ACCELBYTEUE4SDK_API FRegistry
@@ -82,6 +84,8 @@ public:
 	static GameServerApi::ServerQosManager ServerQosManager;
 	static GameServerApi::ServerGameTelemetry ServerGameTelemetry;
 	static GameServerApi::ServerAchievement ServerAchievement;
+	static GameServerApi::ServerMatchmaking ServerMatchmaking;
+	static GameServerApi::ServerLobby ServerLobby;
 
 	//Static class doesn't have constructors or destructor
 	FRegistry() = delete;

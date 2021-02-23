@@ -1,4 +1,4 @@
-// Copyright (c) 2019 - 2020 AccelByte Inc. All Rights Reserved.
+// Copyright (c) 2019 - 2021 AccelByte Inc. All Rights Reserved.
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
@@ -19,6 +19,7 @@ public:
 	FString Namespace;
 	FString PublisherNamespace;
     FString RedirectURI;
+	FString BaseUrl;
 	FString IamServerUrl;
 	FString DSMControllerServerUrl;
 	FString StatisticServerUrl;
@@ -26,6 +27,8 @@ public:
 	FString QosManagerServerUrl;
 	FString GameTelemetryServerUrl;
 	FString AchievementServerUrl;
+	FString MatchmakingServerUrl;
+	FString LobbyServerUrl;
 };
 
 } // Namespace AccelByte
@@ -56,6 +59,9 @@ public:
     FString RedirectURI;
 
 	UPROPERTY(EditAnywhere, GlobalConfig, Category = "AccelByte Server | Settings")
+	FString BaseUrl;
+
+	UPROPERTY(EditAnywhere, GlobalConfig, Category = "AccelByte Server | Settings")
 	FString IamServerUrl;
 
 	UPROPERTY(EditAnywhere, GlobalConfig, Category = "AccelByte Server | Settings")
@@ -75,6 +81,12 @@ public:
 	
 	UPROPERTY(EditAnywhere, GlobalConfig, Category = "AccelByte Server | Settings")
 	FString AchievementServerUrl;
+
+	UPROPERTY(EditAnywhere, GlobalConfig, Category = "AccelByte Server | Settings")
+	FString MatchmakingServerUrl;
+	
+	UPROPERTY(EditAnywhere, GlobalConfig, Category = "AccelByte Server | Settings")
+	FString LobbyServerUrl;
 };
 
 
@@ -120,6 +132,12 @@ public:
 	static FString GetAchievementServerUrl();
 
 	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
+	static FString GetMatchmakingServerUrl();
+	
+	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
+	static FString GetLobbyServerUrl();
+
+	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
 	static void SetClientId(const FString& ClientId);
 
 	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
@@ -151,4 +169,10 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
 	static void SetAchievementServerUrl(const FString& AchievementServerUrl);
+
+	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
+	static void SetMatchmakingServerUrl(const FString& AchievementServerUrl);
+	
+	UFUNCTION(BlueprintCallable, Category = "AccelByte Server | Settings")
+	static void SetLobbyServerUrl(const FString& LobbyServerUrl);
 };
