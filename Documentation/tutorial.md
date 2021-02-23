@@ -138,7 +138,7 @@ const FString Country = TEXT("US");
 const FString DateOfBirth = TEXT("2000-12-20");
 bool bUserAccountCreated = false;
 
-FRegistry::User.Register(OriginalEmail, Password, DisplayName, Country, DateOfBirth, THandler<FAccountUserData>::CreateLambda([&bUserAccountCreated](const FAccountUserData& Result)
+FRegistry::User.Register(OriginalEmail, Password, DisplayName, Country, DateOfBirth, THandler<FUserData>::CreateLambda([&bUserAccountCreated](const FUserData& Result)
     {
         UE_LOG(LogAccelByteUserTest, Display, TEXT("Success."));
         bUserAccountCreated = true;
@@ -154,8 +154,8 @@ This function will get data of currently logged in user.
 
 ```cpp
 bool bGetDataSuccessful1 = false;
-FAccountUserData GetDataResult;
-FRegistry::User.GetData(THandler<FAccountUserData>::CreateLambda([&](const FAccountUserData& Result) 
+FUserData GetDataResult;
+FRegistry::User.GetData(THandler<FUserData>::CreateLambda([&](const FUserData& Result) 
     {
         UE_LOG(LogAccelByteUserTest, Log, TEXT("Success"));
         bGetDataSuccessful = true;
@@ -178,10 +178,10 @@ FUserUpdateRequest UpdateRequest
         FString(UpdatedEmail),
         FString()
     };
-FAccountUserData UpdateResult;
+FUserData UpdateResult;
 bool bUserUpdated = false;
 
-FRegistry::User.Update(UpdateRequest, THandler<FAccountUserData>::CreateLambda([&](const FAccountUserData& Result)
+FRegistry::User.Update(UpdateRequest, THandler<FUserData>::CreateLambda([&](const FUserData& Result)
     {
         UE_LOG(LogAccelByteUserTest, Display, TEXT("Success."));
         bUserUpdated = true;
@@ -203,7 +203,7 @@ FString Email = TEXT("testSDK@game.test");
 FString Password = TEXT("password");
 bool bUpgradeSuccessful = false;
 
-FRegistry::User.Upgrade(Email, Password, THandler<FAccountUserData>::CreateLambda([&](const FAccountUserData& Result)
+FRegistry::User.Upgrade(Email, Password, THandler<FUserData>::CreateLambda([&](const FUserData& Result)
     {
         UE_LOG(LogAccelByteUserTest, Log, TEXT("Success"));
         bUpgradeSuccessful = true;
@@ -238,7 +238,7 @@ This function will verify the registered email **after** user receives verificat
 bool bGetVerificationCode = false;
 FString VerificationCode = GetVerificationCodeFromUserId(FRegistry::Credentials.GetUserId());
 
-FRegistry::User.Verify(VerificationCode, THandler<FAccountUserData>::CreateLambda([&](const FAccountUserData& Result)
+FRegistry::User.Verify(VerificationCode, THandler<FUserData>::CreateLambda([&](const FUserData& Result)
     {
         UE_LOG(LogAccelByteUserTest, Log, TEXT("Success"));
         bGetVerificationCode = true;
@@ -314,7 +314,7 @@ FString Password = TEXT("password");
 bool bGetVerificationCode = false;
 FString VerificationCode = GetVerificationCodeFromUserId(FRegistry::Credentials.GetUserId());
 
-FRegistry::User.UpgradeAndVerify(Email, Password, VerificationCode, THandler<FAccountUserData>::CreateLambda([&](const FAccountUserData& Result)
+FRegistry::User.UpgradeAndVerify(Email, Password, VerificationCode, THandler<FUserData>::CreateLambda([&](const FUserData& Result)
     {
         UE_LOG(LogAccelByteUserTest, Log, TEXT("Success"));
         bGetVerificationCode = true;
