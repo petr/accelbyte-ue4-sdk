@@ -9,6 +9,10 @@ DEFINE_LOG_CATEGORY(AccelByteReportLog);
 
 namespace AccelByte
 {
+	/*static*/ void Report::SetLogVerbosity(ELogVerbosity::Type Verbosity)
+	{
+		AccelByteReportLog.SetVerbosity(Verbosity);
+	}
 
 	void Report::GetHttpRequest(const FHttpRequestPtr & Request)
 	{
