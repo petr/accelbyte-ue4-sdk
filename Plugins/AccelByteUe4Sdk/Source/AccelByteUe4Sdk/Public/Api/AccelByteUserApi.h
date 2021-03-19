@@ -345,9 +345,7 @@ namespace AccelByte
 			* @brief Get JWT from specified Session Id.
 			* he result is FAccelByteModelsOauth2Token.
 			*
-			* @param ClientId The issued OAuth2 client credentials.
-			* @param ClientSecret The issued OAuth2 client credentials.
-			* @param OnSuccess This will be called when the operation succeeded.
+			* @param OnSuccess This will be called when the operation succeeded. The result is FJsonWebTokeResponse.
 			* @param OnError This will be called when the operation failed.
 			*/
 			void GetJsonWebToken(const THandler<FJsonWebTokenResponse>& OnSuccess, const FErrorHandler& OnError);
